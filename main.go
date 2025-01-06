@@ -3,13 +3,16 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-var task string
-
 func main() {
+	InitDB()
+
+	DB.AutoMigrate(&Message{})
+
 	router := mux.NewRouter()
 	router.HandleFunc("/api/hello", HelloHandler).Methods("GET")
 	router.HandleFunc("/api/task", TasksHandler).Methods("POST")
@@ -17,18 +20,28 @@ func main() {
 }
 
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %s", task)
+	var messages []Message
+	if err := DB.Find(&messages).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(messages)
 }
 
 func TasksHandler(w http.ResponseWriter, r *http.Request) {
-	var request struct {
-		Task string `json:"task"`
-	}
+	var request Message
+
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	task = request.Task
+
+	if err := DB.Create(&request).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Task updated")
+	fmt.Fprintln(w, "Task created")
 }

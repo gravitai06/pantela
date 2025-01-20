@@ -4,9 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	"pantela/internal/taskServise"
 	"pantela/internal/web/tasks"
+
+	"github.com/labstack/echo/v4"
 )
 
 type TaskHandler struct {
@@ -44,8 +45,8 @@ func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequ
 	}
 
 	task := taskServise.Task{
-		Task:   *request.Body.Task,
-		IsDone: *request.Body.IsDone,
+		Task:   request.Body.Task,
+		IsDone: request.Body.IsDone,
 	}
 
 	if err := h.service.CreateTask(&task); err != nil {
@@ -53,12 +54,10 @@ func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequ
 	}
 
 	id := int(task.ID)
-	taskName := task.Task
-	isDone := task.IsDone
 	response := tasks.TaskResponse{
 		Id:     &id,
-		Task:   &taskName,
-		IsDone: &isDone,
+		Task:   &task.Task,
+		IsDone: &task.IsDone,
 	}
 
 	return tasks.PostTasks201JSONResponse(response), nil
@@ -87,12 +86,10 @@ func (h *TaskHandler) PatchTasksId(ctx context.Context, request tasks.PatchTasks
 	}
 
 	id := int(task.ID)
-	taskName := task.Task
-	isDone := task.IsDone
 	response := tasks.TaskResponse{
 		Id:     &id,
-		Task:   &taskName,
-		IsDone: &isDone,
+		Task:   &task.Task,
+		IsDone: &task.IsDone,
 	}
 
 	return tasks.PatchTasksId200JSONResponse(response), nil

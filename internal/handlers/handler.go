@@ -14,6 +14,26 @@ type TaskHandler struct {
 	service *taskServise.Service
 }
 
+// DeleteUsersId implements tasks.StrictServerInterface.
+func (h *TaskHandler) DeleteUsersId(ctx context.Context, request tasks.DeleteUsersIdRequestObject) (tasks.DeleteUsersIdResponseObject, error) {
+	panic("unimplemented")
+}
+
+// GetUsers implements tasks.StrictServerInterface.
+func (h *TaskHandler) GetUsers(ctx context.Context, request tasks.GetUsersRequestObject) (tasks.GetUsersResponseObject, error) {
+	panic("unimplemented")
+}
+
+// PatchUsersId implements tasks.StrictServerInterface.
+func (h *TaskHandler) PatchUsersId(ctx context.Context, request tasks.PatchUsersIdRequestObject) (tasks.PatchUsersIdResponseObject, error) {
+	panic("unimplemented")
+}
+
+// PostUsers implements tasks.StrictServerInterface.
+func (h *TaskHandler) PostUsers(ctx context.Context, request tasks.PostUsersRequestObject) (tasks.PostUsersResponseObject, error) {
+	panic("unimplemented")
+}
+
 func NewTaskHandler(service *taskServise.Service) *TaskHandler {
 	return &TaskHandler{service: service}
 }

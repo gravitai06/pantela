@@ -1,13 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/labstack/echo/v4"
 	"pantela/internal/userServise"
 	"pantela/internal/web/users"
+
+	"github.com/labstack/echo/v4"
 )
 
 type UserHandler struct {
@@ -18,10 +20,10 @@ func NewUserHandler(service *userService.Service) *UserHandler {
 	return &UserHandler{service: service}
 }
 
-func (h *UserHandler) GetUsers(ctx echo.Context) error {
+func (h *UserHandler) GetUsers(ctx context.Context, request users.GetUsersRequestObject) (users.GetUsersResponseObject, error) {
 	userList, err := h.service.GetAllUsers()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	var response []users.UserResponse
@@ -41,22 +43,21 @@ func (h *UserHandler) GetUsers(ctx echo.Context) error {
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, response)
+	return users.GetUsers200JSONResponse(response), nil
 }
 
-func (h *UserHandler) PostUsers(ctx echo.Context) error {
-	var request users.CreateUserRequest
-	if err := ctx.Bind(&request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
+func (h *UserHandler) PostUsers(ctx context.Context, request users.PostUsersRequestObject) (users.PostUsersResponseObject, error) {
+	if request.Body == nil {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "Request body is required")
 	}
 
 	user := userService.User{
-		Email:    request.Email,
-		Password: request.Password,
+		Email:    request.Body.Email,
+		Password: request.Body.Password,
 	}
 
 	if err := h.service.CreateUser(&user); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	var deletedAt *time.Time
@@ -73,44 +74,39 @@ func (h *UserHandler) PostUsers(ctx echo.Context) error {
 		UpdatedAt: &user.UpdatedAt,
 	}
 
-	return ctx.JSON(http.StatusCreated, response)
+	return users.PostUsers201JSONResponse(response), nil
 }
 
-func (h *UserHandler) DeleteUsersId(ctx echo.Context, id string) error {
-	idUint, err := strconv.ParseUint(id, 10, 64)
+func (h *UserHandler) DeleteUsersId(ctx context.Context, request users.DeleteUsersIdRequestObject) (users.DeleteUsersIdResponseObject, error) {
+	idUint, err := strconv.ParseUint(request.Id, 10, 64)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
 	}
 
 	if err := h.service.DeleteUser(uint(idUint)); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.NoContent(http.StatusNoContent)
+	return users.DeleteUsersId204Response{}, nil
 }
 
-func (h *UserHandler) PatchUsersId(ctx echo.Context, id string) error {
-	var request users.UpdateUserRequest
-	if err := ctx.Bind(&request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
-	}
-
-	idUint, err := strconv.ParseUint(id, 10, 64)
+func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsersIdRequestObject) (users.PatchUsersIdResponseObject, error) {
+	idUint, err := strconv.ParseUint(request.Id, 10, 64)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
 	}
 
 	updateData := make(map[string]interface{})
-	if request.Email != nil {
-		updateData["email"] = *request.Email
+	if request.Body.Email != nil && *request.Body.Email != "" {
+		updateData["email"] = *request.Body.Email
 	}
-	if request.Password != nil {
-		updateData["password"] = *request.Password
+	if request.Body.Password != nil && *request.Body.Password != "" {
+		updateData["password"] = *request.Body.Password
 	}
 
 	user, err := h.service.UpdateUser(uint(idUint), updateData)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	var deletedAt *time.Time
@@ -127,5 +123,5 @@ func (h *UserHandler) PatchUsersId(ctx echo.Context, id string) error {
 		UpdatedAt: &user.UpdatedAt,
 	}
 
-	return ctx.JSON(http.StatusOK, response)
+	return users.PatchUsersId200JSONResponse(response), nil
 }

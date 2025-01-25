@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	ID        string         `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"` // Исправлено на string
+	ID        int            `gorm:"primaryKey;autoIncrement"`
 	Email     string         `gorm:"unique;not null"`
 	Password  string         `gorm:"not null"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`

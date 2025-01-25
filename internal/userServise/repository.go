@@ -24,13 +24,13 @@ func (r *Repository) GetAllUsers() ([]User, error) {
 	return users, err
 }
 
-func (r *Repository) GetUserByID(id uint) (*User, error) {
+func (r *Repository) GetUserByID(id int) (*User, error) {
 	var user User
 	err := r.db.First(&user, id).Error
 	return &user, err
 }
 
-func (r *Repository) UpdateUser(id uint, updateData map[string]interface{}) (*User, error) {
+func (r *Repository) UpdateUser(id int, updateData map[string]interface{}) (*User, error) {
 	var user User
 	err := r.db.Model(&user).Where("id = ?", id).Updates(updateData).Error
 	if err != nil {
@@ -39,6 +39,6 @@ func (r *Repository) UpdateUser(id uint, updateData map[string]interface{}) (*Us
 	return &user, nil
 }
 
-func (r *Repository) DeleteUser(id uint) error {
+func (r *Repository) DeleteUser(id int) error {
 	return r.db.Delete(&User{}, id).Error
 }

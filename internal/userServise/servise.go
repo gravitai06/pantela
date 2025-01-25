@@ -17,9 +17,9 @@ func (s *Service) CreateUser(user *User) error {
 }
 
 func (s *Service) DeleteUser(id uint) error {
-	return s.repo.DeleteUser(id)
+	return s.repo.DeleteUser(int(id))
 }
 
 func (s *Service) UpdateUser(id uint, updateData map[string]interface{}) (*User, error) {
-	return s.repo.UpdateUser(id, updateData)
+	return s.repo.UpdateUser(int(id), updateData)
 }

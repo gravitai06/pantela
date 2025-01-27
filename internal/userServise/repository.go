@@ -24,21 +24,28 @@ func (r *Repository) GetAllUsers() ([]User, error) {
 	return users, err
 }
 
-func (r *Repository) GetUserByID(id int) (*User, error) {
+func (r *Repository) GetUserByID(id string) (*User, error) {
 	var user User
-	err := r.db.First(&user, id).Error
-	return &user, err
-}
-
-func (r *Repository) UpdateUser(id int, updateData map[string]interface{}) (*User, error) {
-	var user User
-	err := r.db.Model(&user).Where("id = ?", id).Updates(updateData).Error
+	err := r.db.First(&user, "id = ?", id).Error
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (r *Repository) DeleteUser(id int) error {
-	return r.db.Delete(&User{}, id).Error
+func (r *Repository) UpdateUser(id string, updateData map[string]interface{}) (*User, error) {
+	var user User
+	err := r.db.Model(&user).Where("id = ?", id).Updates(updateData).Error
+	if err != nil {
+		return nil, err
+	}
+	err = r.db.First(&user, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *Repository) DeleteUser(id string) error {
+	return r.db.Delete(&User{}, "id = ?", id).Error
 }

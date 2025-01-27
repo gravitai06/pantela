@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"time"
 
 	"pantela/internal/userServise"
@@ -32,9 +31,8 @@ func (h *UserHandler) GetUsers(ctx context.Context, request users.GetUsersReques
 		if user.DeletedAt.Valid {
 			deletedAt = &user.DeletedAt.Time
 		}
-		idStr := strconv.Itoa(user.ID)
 		response = append(response, users.UserResponse{
-			Id:        &idStr,
+			Id:        &user.ID,
 			Email:     &user.Email,
 			Password:  &user.Password,
 			DeletedAt: deletedAt,
@@ -64,9 +62,8 @@ func (h *UserHandler) PostUsers(ctx context.Context, request users.PostUsersRequ
 	if user.DeletedAt.Valid {
 		deletedAt = &user.DeletedAt.Time
 	}
-	idStr := strconv.Itoa(user.ID)
 	response := users.UserResponse{
-		Id:        &idStr,
+		Id:        &user.ID,
 		Email:     &user.Email,
 		Password:  &user.Password,
 		DeletedAt: deletedAt,
@@ -78,12 +75,7 @@ func (h *UserHandler) PostUsers(ctx context.Context, request users.PostUsersRequ
 }
 
 func (h *UserHandler) DeleteUsersId(ctx context.Context, request users.DeleteUsersIdRequestObject) (users.DeleteUsersIdResponseObject, error) {
-	id, err := strconv.Atoi(request.Id)
-	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
-	}
-
-	if err := h.service.DeleteUser(uint(id)); err != nil {
+	if err := h.service.DeleteUser(request.Id); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -91,11 +83,6 @@ func (h *UserHandler) DeleteUsersId(ctx context.Context, request users.DeleteUse
 }
 
 func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsersIdRequestObject) (users.PatchUsersIdResponseObject, error) {
-	id, err := strconv.Atoi(request.Id)
-	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
-	}
-
 	updateData := make(map[string]interface{})
 	if request.Body.Email != nil && *request.Body.Email != "" {
 		updateData["email"] = *request.Body.Email
@@ -104,7 +91,7 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 		updateData["password"] = *request.Body.Password
 	}
 
-	user, err := h.service.UpdateUser(uint(id), updateData)
+	user, err := h.service.UpdateUser(request.Id, updateData)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -113,9 +100,8 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 	if user.DeletedAt.Valid {
 		deletedAt = &user.DeletedAt.Time
 	}
-	idStr := strconv.Itoa(user.ID)
 	response := users.UserResponse{
-		Id:        &idStr,
+		Id:        &user.ID,
 		Email:     &user.Email,
 		Password:  &user.Password,
 		DeletedAt: deletedAt,

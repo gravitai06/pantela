@@ -24,6 +24,12 @@ func (r *Repository) GetAllTasks() ([]Task, error) {
 	return tasks, err
 }
 
+func (r *Repository) GetTasksForUser(userID uint) ([]Task, error) {
+	var tasks []Task
+	result := r.db.Where("user_id = ?", userID).Find(&tasks)
+	return tasks, result.Error
+}
+
 func (r *Repository) GetTaskByID(id uint) (*Task, error) {
 	var task Task
 	err := r.db.First(&task, id).Error

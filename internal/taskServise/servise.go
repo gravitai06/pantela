@@ -12,6 +12,10 @@ func (s *Service) GetAllTasks() ([]Task, error) {
 	return s.repo.GetAllTasks()
 }
 
+func (s *Service) GetTasksForUser(userID uint) ([]Task, error) {
+	return s.repo.GetTasksForUser(userID)
+}
+
 func (s *Service) CreateTask(task *Task) error {
 	return s.repo.CreateTask(task)
 }

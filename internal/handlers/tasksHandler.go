@@ -39,6 +39,27 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 	return tasks.GetTasks200JSONResponse(response), nil
 }
 
+func (h *TaskHandler) GetTasksByUserID(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
+	taskList, err := h.service.GetTasksForUser(uint(request.UserID))
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	var response []tasks.TaskResponse
+	for _, task := range taskList {
+		id := int(task.ID)
+		taskName := task.Task
+		isDone := task.IsDone
+		response = append(response, tasks.TaskResponse{
+			Id:     &id,
+			Task:   &taskName,
+			IsDone: &isDone,
+		})
+	}
+
+	return tasks.GetTasks200JSONResponse(response), nil
+}
+
 func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
 	if request.Body == nil {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "Request body is required")

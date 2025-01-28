@@ -3,14 +3,23 @@ package userService
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"pantela/internal/taskServise"
 )
 
 type Service struct {
-	repo *Repository
+	repo        *Repository
+	taskService *taskServise.Service
 }
 
-func NewService(repo *Repository) *Service {
-	return &Service{repo: repo}
+//func NewService(repo *Repository) *Service {
+//	return &Service{repo: repo}
+//}
+
+func NewService(repo *Repository, taskService *taskServise.Service) *Service {
+	return &Service{
+		repo:        repo,
+		taskService: taskService,
+	}
 }
 
 func (s *Service) GetAllUsers() ([]User, error) {
@@ -37,4 +46,8 @@ func (s *Service) DeleteUser(id string) error {
 
 func (s *Service) UpdateUser(id string, updateData map[string]interface{}) (*User, error) {
 	return s.repo.UpdateUser(id, updateData)
+}
+
+func (s *Service) GetTasksForUser(userID uint) ([]taskServise.Task, error) {
+	return s.taskService.GetTasksForUser(userID)
 }

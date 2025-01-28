@@ -146,6 +146,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 }
 
 type GetTasksRequestObject struct {
+	UserID uint `json:"user_id"`
 }
 
 type GetTasksResponseObject interface {

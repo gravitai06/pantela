@@ -1,13 +1,21 @@
 openapi: 3.0.0
 info:
-  title: Task and User API
+  title: API
   version: 1.0.0
+
 paths:
+  # Пути для задач
   /tasks:
     get:
       summary: Get all tasks
       tags:
         - tasks
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: integer
+          required: false
       responses:
         '200':
           description: A list of tasks
@@ -75,6 +83,7 @@ paths:
         '204':
           description: Task deleted successfully
 
+  # Пути для пользователей
   /users:
     get:
       summary: Get all users
@@ -147,9 +156,29 @@ paths:
         '204':
           description: User deleted successfully
 
+  /users/{id}/tasks:
+    get:
+      summary: Get tasks for a user
+      tags:
+        - users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tasks for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+
 components:
   schemas:
-    # Task schemas
     TaskResponse:
       type: object
       properties:
@@ -159,6 +188,8 @@ components:
           type: string
         is_done:
           type: boolean
+        user_id:
+          type: integer
 
     CreateTaskRequest:
       type: object
@@ -167,6 +198,8 @@ components:
           type: string
         is_done:
           type: boolean
+        user_id:
+          type: integer
       required:
         - task
         - is_done
@@ -178,8 +211,9 @@ components:
           type: string
         is_done:
           type: boolean
+        user_id:
+          type: integer
 
-    # User schemas
     UserResponse:
       type: object
       properties:
@@ -199,6 +233,10 @@ components:
         updated_at:
           type: string
           format: date-time
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskResponse'
 
     CreateUserRequest:
       type: object

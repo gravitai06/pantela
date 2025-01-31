@@ -113,19 +113,19 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 	return users.PatchUsersId200JSONResponse(response), nil
 }
 
-func (h *UserHandler) GetTasksForUser(ctx context.Context, request users.GetTasksForUserRequestObject) (users.GetTasksForUserResponseObject, error) {
+func (h *UserHandler) GetTasksForUser(ctx context.Context, request users.GetTasksForUserResponseObject) (users.GetTasksForUserResponseObject, error) {
 	userID, err := strconv.Atoi(request.Id)
 	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return users.GetTasksForUserResponseObject{}, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	tasks, err := h.service.GetTasksForUser(uint(userID))
 	if err != nil {
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return users.GetTasksForUserResponseObject{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	var response []users.TaskResponse
 	for _, task := range tasks {
-		id := int(task.ID)
+		id := strconv.Itoa(int(task.ID))
 		taskName := task.Task
 		isDone := task.IsDone
 		response = append(response, users.TaskResponse{
@@ -134,6 +134,5 @@ func (h *UserHandler) GetTasksForUser(ctx context.Context, request users.GetTask
 			IsDone: &isDone,
 		})
 	}
-
-	return users.GetTasksForUser200JSONResponse(response), nil
+	return users.GetTasksForUserResponseObject{Tasks: &response}, nil
 }

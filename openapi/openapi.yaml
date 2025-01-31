@@ -14,7 +14,7 @@ paths:
         - in: query
           name: user_id
           schema:
-            type: integer
+            type: string
           required: false
       responses:
         '200':
@@ -54,7 +54,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         description: The task data to update
         required: true
@@ -78,7 +78,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '204':
           description: Task deleted successfully
@@ -173,9 +173,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TaskResponse'
+                $ref: '#/components/schemas/GetTasksForUserResponseObject'
 
 components:
   schemas:
@@ -183,13 +181,13 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string  # ID остается строкой
         task:
           type: string
         is_done:
           type: boolean
         user_id:
-          type: integer
+          type: string  # user_id тоже строка
 
     CreateTaskRequest:
       type: object
@@ -199,10 +197,11 @@ components:
         is_done:
           type: boolean
         user_id:
-          type: integer
+          type: string
       required:
         - task
         - is_done
+        - user_id
 
     UpdateTaskRequest:
       type: object
@@ -212,7 +211,7 @@ components:
         is_done:
           type: boolean
         user_id:
-          type: integer
+          type: string
 
     UserResponse:
       type: object
@@ -256,3 +255,11 @@ components:
           type: string
         password:
           type: string
+
+    GetTasksForUserResponseObject:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskResponse'

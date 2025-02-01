@@ -126,26 +126,56 @@ func (h *UserHandler) GetUsersIdTasks(ctx context.Context, request users.GetUser
 	if h.service == nil {
 		return nil, errors.New("service is nil")
 	}
-	userID, err := strconv.ParseUint(request.Id, 10, 32)
-	if err != nil {
-		return nil, errors.New("invalid user ID format")
-	}
-	tasks, err := h.service.GetTasksForUser(uint(userID))
+
+	userID := request.Id
+
+	tasks, err := h.service.GetTasksForUser(userID)
 	if err != nil {
 		return nil, err
 	}
+
 	var taskResponses []users.TaskResponse
 	for _, task := range tasks {
 		taskResponses = append(taskResponses, users.TaskResponse{
 			Id:     strPtr(strconv.FormatUint(uint64(task.ID), 10)),
 			IsDone: boolPtr(task.IsDone),
 			Task:   strPtr(task.Task),
-			UserId: strPtr(strconv.FormatUint(uint64(task.UserID), 10)),
+			UserId: strPtr(task.UserID),
 		})
 	}
+
 	response := users.GetUsersIdTasks200JSONResponse{
 		Tasks: &taskResponses,
 		Id:    request.Id,
 	}
 	return response, nil
 }
+
+//func (h *UserHandler) GetUsersIdTasks(ctx context.Context, request users.GetUsersIdTasksRequestObject) (users.GetUsersIdTasksResponseObject, error) {
+//	if h.service == nil {
+//		return nil, errors.New("service is nil")
+//	}
+//
+//	userID, err := strconv.ParseUint(request.Id, 10, 32)
+//	if err != nil {
+//		return nil, errors.New("invalid user ID format")
+//	}
+//	tasks, err := h.service.GetTasksForUser(uint(userID))
+//	if err != nil {
+//		return nil, err
+//	}
+//	var taskResponses []users.TaskResponse
+//	for _, task := range tasks {
+//		taskResponses = append(taskResponses, users.TaskResponse{
+//			Id:     strPtr(strconv.FormatUint(uint64(task.ID), 10)),
+//			IsDone: boolPtr(task.IsDone),
+//			Task:   strPtr(task.Task),
+//			UserId: strPtr(strconv.FormatUint(uint64(task.UserID), 10)),
+//		})
+//	}
+//	response := users.GetUsersIdTasks200JSONResponse{
+//		Tasks: &taskResponses,
+//		Id:    request.Id,
+//	}
+//	return response, nil
+//}

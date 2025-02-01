@@ -24,11 +24,20 @@ func (r *Repository) GetAllTasks() ([]Task, error) {
 	return tasks, err
 }
 
-func (r *Repository) GetTasksForUser(userID uint) ([]Task, error) {
+func (r *Repository) GetTasksForUser(userID string) ([]Task, error) {
 	var tasks []Task
-	result := r.db.Where("user_id = ?", userID).Find(&tasks)
-	return tasks, result.Error
+	err := r.db.Where("user_id = ?", userID).Find(&tasks).Error
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }
+
+//func (r *Repository) GetTasksForUser(userID uint) ([]Task, error) {
+//	var tasks []Task
+//	result := r.db.Where("user_id = ?", userID).Find(&tasks)
+//	return tasks, result.Error
+//}
 
 func (r *Repository) GetTaskByID(id uint) (*Task, error) {
 	var task Task

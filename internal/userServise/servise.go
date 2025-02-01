@@ -48,6 +48,6 @@ func (s *Service) UpdateUser(id string, updateData map[string]interface{}) (*Use
 	return s.repo.UpdateUser(id, updateData)
 }
 
-func (s *Service) GetTasksForUser(userID uint) ([]taskServise.Task, error) {
+func (s *Service) GetTasksForUser(userID string) ([]taskServise.Task, error) {
 	return s.taskService.GetTasksForUser(userID)
 }

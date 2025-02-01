@@ -12,7 +12,7 @@ func (s *Service) GetAllTasks() ([]Task, error) {
 	return s.repo.GetAllTasks()
 }
 
-func (s *Service) GetTasksForUser(userID uint) ([]Task, error) {
+func (s *Service) GetTasksForUser(userID string) ([]Task, error) {
 	return s.repo.GetTasksForUser(userID)
 }
 

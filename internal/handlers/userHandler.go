@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -113,26 +114,38 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 	return users.PatchUsersId200JSONResponse(response), nil
 }
 
-func (h *UserHandler) GetTasksForUser(ctx context.Context, request users.GetTasksForUserResponseObject) (users.GetTasksForUserResponseObject, error) {
-	userID, err := strconv.Atoi(request.Id)
+func strPtr(s string) *string {
+	return &s
+}
+
+func boolPtr(b bool) *bool {
+	return &b
+}
+
+func (h *UserHandler) GetUsersIdTasks(ctx context.Context, request users.GetUsersIdTasksRequestObject) (users.GetUsersIdTasksResponseObject, error) {
+	if h.service == nil {
+		return nil, errors.New("service is nil")
+	}
+	userID, err := strconv.ParseUint(request.Id, 10, 32)
 	if err != nil {
-		return users.GetTasksForUserResponseObject{}, echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return nil, errors.New("invalid user ID format")
 	}
 	tasks, err := h.service.GetTasksForUser(uint(userID))
 	if err != nil {
-		return users.GetTasksForUserResponseObject{}, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return nil, err
 	}
-
-	var response []users.TaskResponse
+	var taskResponses []users.TaskResponse
 	for _, task := range tasks {
-		id := strconv.Itoa(int(task.ID))
-		taskName := task.Task
-		isDone := task.IsDone
-		response = append(response, users.TaskResponse{
-			Id:     &id,
-			Task:   &taskName,
-			IsDone: &isDone,
+		taskResponses = append(taskResponses, users.TaskResponse{
+			Id:     strPtr(strconv.FormatUint(uint64(task.ID), 10)),
+			IsDone: boolPtr(task.IsDone),
+			Task:   strPtr(task.Task),
+			UserId: strPtr(strconv.FormatUint(uint64(task.UserID), 10)),
 		})
 	}
-	return users.GetTasksForUserResponseObject{Tasks: &response}, nil
+	response := users.GetUsersIdTasks200JSONResponse{
+		Tasks: &taskResponses,
+		Id:    request.Id,
+	}
+	return response, nil
 }

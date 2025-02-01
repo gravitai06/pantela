@@ -7,7 +7,7 @@ import (
 	"pantela/internal/database"
 	"pantela/internal/handlers"
 	"pantela/internal/taskServise"
-	userService "pantela/internal/userServise"
+	"pantela/internal/userServise"
 	"pantela/internal/web/tasks"
 	"pantela/internal/web/users"
 )
@@ -26,18 +26,21 @@ func main() {
 	if err := userRepo.Migrate(); err != nil {
 		log.Fatalf("Failed to auto-migrate users database: %v", err)
 	}
-	userService := userService.NewService(userRepo)
+	userService := userService.NewService(userRepo, taskService)
 	userHandler := handlers.NewUserHandler(userService)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	strictTaskHandler := tasks.NewStrictHandler(taskHandler, nil)
-	tasks.RegisterHandlers(e, strictTaskHandler)
+	tasks.RegisterHandlers(e, tasks.NewStrictHandler(taskHandler, nil))
+	users.RegisterHandlers(e, users.NewStrictHandler(userHandler, nil))
 
-	strictUserHandler := users.NewStrictHandler(userHandler, nil)
-	users.RegisterHandlers(e, strictUserHandler)
+	//strictTaskHandler := tasks.NewStrictHandler(taskHandler, nil)
+	//tasks.RegisterHandlers(e, strictTaskHandler)
+	//
+	//strictUserHandler := users.NewStrictHandler(userHandler, nil)
+	//users.RegisterHandlers(e, strictUserHandler)
 
 	log.Println("Server started on :8080")
 	if err := e.Start(":8080"); err != nil {

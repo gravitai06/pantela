@@ -3,8 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
-
 	"pantela/internal/taskServise"
 	"pantela/internal/web/tasks"
 
@@ -41,10 +39,11 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 }
 
 func (h *TaskHandler) GetTasksByUserID(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
-	userIDStr := strconv.Itoa(int(request.UserID)) // Преобразуем uint в string
+	// Преобразуем userID (тип uint) в строку
+	userID := request.UserID
 
-	// Передаем строку в GetTasksForUser
-	taskList, err := h.service.GetTasksForUser(userIDStr)
+	// Передаем uint в GetTasksForUser
+	taskList, err := h.service.GetTasksForUser(userID)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

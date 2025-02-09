@@ -24,7 +24,7 @@ func (r *Repository) GetAllTasks() ([]Task, error) {
 	return tasks, err
 }
 
-func (r *Repository) GetTasksForUser(userID string) ([]Task, error) {
+func (r *Repository) GetTasksForUser(userID uint) ([]Task, error) {
 	var tasks []Task
 	err := r.db.Where("user_id = ?", userID).Find(&tasks).Error
 	if err != nil {

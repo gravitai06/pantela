@@ -33,8 +33,11 @@ func (h *UserHandler) GetUsers(ctx context.Context, request users.GetUsersReques
 		if user.DeletedAt.Valid {
 			deletedAt = &user.DeletedAt.Time
 		}
+
+		userID := strconv.FormatUint(uint64(user.ID), 10)
+
 		response = append(response, users.UserResponse{
-			Id:        &user.ID,
+			Id:        &userID,
 			Email:     &user.Email,
 			Password:  &user.Password,
 			DeletedAt: deletedAt,
@@ -64,21 +67,22 @@ func (h *UserHandler) PostUsers(ctx context.Context, request users.PostUsersRequ
 	if user.DeletedAt.Valid {
 		deletedAt = &user.DeletedAt.Time
 	}
+
+	userID := strconv.FormatUint(uint64(user.ID), 10)
+
 	response := users.UserResponse{
-		Id:        &user.ID,
+		Id:        &userID,
 		Email:     &user.Email,
 		Password:  &user.Password,
 		DeletedAt: deletedAt,
 		CreatedAt: &user.CreatedAt,
 		UpdatedAt: &user.UpdatedAt,
 	}
-
 	return users.PostUsers201JSONResponse(response), nil
 }
 
 func (h *UserHandler) DeleteUsersId(ctx context.Context, request users.DeleteUsersIdRequestObject) (users.DeleteUsersIdResponseObject, error) {
-	// Преобразуем request.Id (string) в uint
-	userID, err := strconv.ParseUint(request.Id, 10, 0) // Используем 0 для автоматического определения размера
+	userID, err := strconv.ParseUint(request.Id, 10, 64)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
 	}
@@ -99,8 +103,7 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 		updateData["password"] = *request.Body.Password
 	}
 
-	// Преобразуем request.Id (string) в uint
-	userID, err := strconv.ParseUint(request.Id, 10, 0) // Используем 0 для автоматического определения размера
+	userID, err := strconv.ParseUint(request.Id, 10, 64)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
 	}
@@ -114,8 +117,11 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 	if user.DeletedAt.Valid {
 		deletedAt = &user.DeletedAt.Time
 	}
+
+	userIDStr := strconv.FormatUint(uint64(user.ID), 10)
+
 	response := users.UserResponse{
-		Id:        &user.ID,
+		Id:        &userIDStr,
 		Email:     &user.Email,
 		Password:  &user.Password,
 		DeletedAt: deletedAt,
@@ -139,8 +145,7 @@ func (h *UserHandler) GetUsersIdTasks(ctx context.Context, request users.GetUser
 		return nil, errors.New("service is nil")
 	}
 
-	// Преобразуем request.Id (string) в uint
-	userID, err := strconv.ParseUint(request.Id, 10, 0) // Используем 0 для автоматического определения размера
+	userID, err := strconv.ParseUint(request.Id, 10, 64)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID")
 	}
@@ -152,20 +157,18 @@ func (h *UserHandler) GetUsersIdTasks(ctx context.Context, request users.GetUser
 
 	var taskResponses []users.TaskResponse
 	for _, task := range tasks {
-		// Преобразуем task.UserID (uint) в string
 		taskUserID := strconv.FormatUint(uint64(task.UserID), 10)
 
 		taskResponses = append(taskResponses, users.TaskResponse{
 			Id:     strPtr(strconv.FormatUint(uint64(task.ID), 10)),
 			IsDone: boolPtr(task.IsDone),
 			Task:   strPtr(task.Task),
-			UserId: strPtr(taskUserID), // Преобразуем в строку
+			UserId: strPtr(taskUserID),
 		})
 	}
-
 	response := users.GetUsersIdTasks200JSONResponse{
 		Tasks: &taskResponses,
-		Id:    strconv.FormatUint(uint64(userID), 10), // Преобразуем в строку
+		Id:    request.Id,
 	}
 	return response, nil
 }

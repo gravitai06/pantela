@@ -39,10 +39,7 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 }
 
 func (h *TaskHandler) GetTasksByUserID(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
-	// Преобразуем userID (тип uint) в строку
 	userID := request.UserID
-
-	// Передаем uint в GetTasksForUser
 	taskList, err := h.service.GetTasksForUser(userID)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, err.Error())

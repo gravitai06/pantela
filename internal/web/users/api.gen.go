@@ -259,7 +259,9 @@ type GetUsersIdTasksResponseObject interface {
 	VisitGetUsersIdTasksResponse(w http.ResponseWriter) error
 }
 
-type GetUsersIdTasks200JSONResponse GetTasksForUserResponseObject
+//type GetUsersIdTasks200JSONResponse GetTasksForUserResponseObject
+type GetUsersIdTasks200JSONResponse []TaskResponse
+
 
 func (response GetUsersIdTasks200JSONResponse) VisitGetUsersIdTasksResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")

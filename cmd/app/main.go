@@ -36,12 +36,6 @@ func main() {
 	tasks.RegisterHandlers(e, tasks.NewStrictHandler(taskHandler, nil))
 	users.RegisterHandlers(e, users.NewStrictHandler(userHandler, nil))
 
-	//strictTaskHandler := tasks.NewStrictHandler(taskHandler, nil)
-	//tasks.RegisterHandlers(e, strictTaskHandler)
-	//
-	//strictUserHandler := users.NewStrictHandler(userHandler, nil)
-	//users.RegisterHandlers(e, strictUserHandler)
-
 	log.Println("Server started on :8080")
 	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

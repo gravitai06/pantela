@@ -157,18 +157,12 @@ func (h *UserHandler) GetUsersIdTasks(ctx context.Context, request users.GetUser
 
 	var taskResponses []users.TaskResponse
 	for _, task := range tasks {
-		taskUserID := strconv.FormatUint(uint64(task.UserID), 10)
-
 		taskResponses = append(taskResponses, users.TaskResponse{
 			Id:     strPtr(strconv.FormatUint(uint64(task.ID), 10)),
 			IsDone: boolPtr(task.IsDone),
 			Task:   strPtr(task.Task),
-			UserId: strPtr(taskUserID),
 		})
 	}
-	response := users.GetUsersIdTasks200JSONResponse{
-		Tasks: &taskResponses,
-		Id:    request.Id,
-	}
-	return response, nil
+
+	return users.GetUsersIdTasks200JSONResponse(taskResponses), nil
 }
